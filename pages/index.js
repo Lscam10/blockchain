@@ -1,115 +1,221 @@
-import Head from 'next/head';
-import styles from '../styles/Home.module.css';
+import React, { Component } from "react";
+import web3 from '../ethereum/web3';
+import Formate from '../utils/Formate';
+import 'semantic-ui-css/semantic.min.css'
+import { Menu, Divider } from "semantic-ui-react";
+import { BrowserRouter, Switch, Route, Link, Redirect  } from 'react-router-dom';
+import Home from '../components/Home';
+import SignUp from "../components/SignUp";
+import SignIn from "../components/SignIn"
+import SignOut from "../components/SignOut";
+import UserAccount from '../components/UserAccount';
+import styles from "../styles/App.module.css";
+import Record from '../ethereum/build/Record.json';
 
-export default function Home() {
-  return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+class index extends Component {
+  state = {
+    web3: null,
+    account: null,
+    contract: null,
+    balance: null,
+    activeItem: 'home',
+    signedUp: false,
+    loggedIn: false,
+    username: ''
+    //color: 'teal'
+  };
 
-      <main>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+  handleItemClick = (e, { name }) => this.setState({ activeItem: name, color: 'teal' })
 
-        <p className={styles.description}>
-          Get started by editing <code>pages/index.js</code>
-        </p>
+  componentDidMount = async () => {
+    try {
 
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel" className={styles.logo} />
-        </a>
-      </footer>
-
-      <style jsx>{`
-        main {
-          padding: 5rem 0;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
-        footer {
-          width: 100%;
-          height: 100px;
-          border-top: 1px solid #eaeaea;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-        footer img {
-          margin-left: 0.5rem;
-        }
-        footer a {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          text-decoration: none;
-          color: inherit;
-        }
-        code {
-          background: #fafafa;
-          border-radius: 5px;
-          padding: 0.75rem;
-          font-size: 1.1rem;
-          font-family: Menlo, Monaco, Lucida Console, Liberation Mono,
-            DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
-        }
-      `}</style>
-
-      <style jsx global>{`
-        html,
-        body {
-          padding: 0;
-          margin: 0;
-          font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
-            Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
-            sans-serif;
-        }
-        * {
-          box-sizing: border-box;
-        }
-      `}</style>
-    </div>
+      const contract = new web3.eth.Contract((Record.abi),
+  '0x5718F4F37C30466FEB99a34e41EA562cbF5d3AA1'       
   )
+
+       const accounts = await web3.eth.getAccounts();
+
+      this.setState({ web3, contract, account: accounts[0] }, this.start);
+    } catch (error) {
+      alert(
+        `Error al cargar web3`,
+      );
+      console.error(error);
+    }
+
+    await this.getAccount();
+  };
+
+  start = async () => {
+    await this.getAccount();
+    const { web3, contract, account } = this.state;
+
+    console.log("web3 =", web3);
+    console.log("Contract =", contract);
+    console.log("Account =", account);
+  };
+
+  getAccount = async () => {
+    if (this.state.web3 !== null || this.state.web3 !== undefined) {
+      await window.ethereum.on('accountsChanged', async (accounts) => {
+        this.setState({
+          account: accounts[0],
+          loggedIn: false
+        });
+
+        this.state.web3.eth.getBalance(accounts[0], (err, balance) => {
+          if (!err) {
+            this.setState({ balance: Formate(this.state.web3.utils.fromWei(balance, 'ether')) });
+          }
+        });
+      });
+    }
+  }
+
+  accountCreated = async (signedUp) => {
+    this.setState({ signedUp });
+  }
+
+  userSignedIn = async (loggedIn, username) => {
+    this.setState({ loggedIn, username });
+  }
+
+  loggedOut = async (loggedIn) => {
+    this.setState({ loggedIn });
+  }
+
+  render() {
+    const { activeItem, color } = this.state;
+
+    if (!this.state.web3) {
+      return <div>Cargando Web3, cuentas y contrato...</div>;
+    }
+    return (
+      <div className={styles.App}>
+        <div className={styles.mainpage}>
+          <BrowserRouter>
+            <div className={styles.homenav}>
+              <Menu stackable inverted secondary size='large'>
+                <Menu.Item
+                  name='home'
+                  color={color}
+                  active={activeItem === 'home'}
+                  onClick={this.handleItemClick}
+                  as={Link}
+                  to='/'
+                />
+                {
+                 this.state.loggedIn ?
+                 <Menu.Item
+                   position='right'
+                   name='Cuenta de Usuario'
+                   color={color}
+                   active={activeItem === 'Cuenta de Usuario'}
+                   onClick={this.handleItemClick}
+                   as={Link}
+                   to='/UserAccount'
+                 />
+                 :
+                 console.log('')
+             }
+             {
+                  !this.state.loggedIn ?
+                    <Menu.Item
+                      position='right'
+                      name='Iniciar sesión'
+                      color={color}
+                      active={activeItem === 'Iniciar sesión'}
+                      onClick={this.handleItemClick}
+                      as={Link}
+                      to='/sign-in'
+                    />
+                    :
+                    console.log('')
+                }
+
+                {
+                  this.state.loggedIn ?
+                    <Menu.Item
+                      name='Cerrar Sesión'
+                      color='red'
+                      active={activeItem === 'Cerrar Sesión'}
+                      onClick={this.handleItemClick}
+                      as={Link}
+                      to='/sign-out'
+                    />
+                    :
+                    <Menu.Item
+                      name='Registrarse'
+                      color={color}
+                      active={activeItem === 'Registrarse'}
+                      onClick={this.handleItemClick}
+                      as={Link}
+                      to='/sign-up'
+                    />
+                }
+              </Menu>
+            </div>
+            <Divider inverted />
+
+            <Switch>
+              <Route exact path='/' >
+                <Home />
+              </Route>
+
+              {
+                this.state.loggedIn ?
+                  <Route path='/UserAccount' >
+                    <UserAccount />
+                  </Route>
+                  :
+                  <Route path='/UserAccount'>
+                    Has sido desconectado
+                  </Route>
+              }
+              {
+                <Route path='/sign-in' >
+                  {
+                    this.state.loggedIn ?
+                      <Redirect to='/UserAccount' />
+                      :
+                      <SignIn
+                        web3={this.state.web3}
+                        contract={this.state.contract}
+                        account={this.state.account}
+                        signedUp={this.state.signedUp}
+                        userSignedIn={this.userSignedIn}
+                      />
+                  }
+                </Route>
+              }
+
+              {
+                this.state.loggedIn ?
+                  <Route path='/sign-out'>
+                    <SignOut
+                      loggedOut={this.loggedOut}
+                    />
+                    Has sido desconectado
+                    <br></br>
+                    Gracias
+                  </Route>
+                  :
+                  <Route path='/sign-up' >
+                    <SignUp
+                      web3={this.state.web3}
+                      contract={this.state.contract}
+                      account={this.state.account}
+                      accountCreated={this.accountCreated}
+                    />
+                  </Route>
+              }
+            </Switch>
+          </BrowserRouter>
+        </div>
+      </div>
+    );
+  }
 }
+
+export default index;
