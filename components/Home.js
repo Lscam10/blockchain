@@ -14,7 +14,7 @@ class Home extends Component {
     render() {
         return (
             <div>
-                <Segment inverted vertical style={{ padding: '9em 0em' }}>
+                <Segment inverted vertical style={{ padding: '6em 0em' }}>
                     <Container>
                         <Grid divided inverted stackable>
                             <Grid.Row>
@@ -60,8 +60,6 @@ class Home extends Component {
                 &nbsp;
                 &nbsp;
 
-                {/* <Segment style={{ padding: '1em' }} vertical>
-                </Segment> */}
                 <Carousel />
                 <Segment style={{ padding: '1em' }} vertical>
                 </Segment>
