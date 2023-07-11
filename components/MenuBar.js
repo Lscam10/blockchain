@@ -15,16 +15,23 @@ export default class MenuBar extends Component {
     Router.pushRoute(`/edit/${accounts[0]}`);
   }
 
-  onClickedUserList = async event => {
-    event.preventDefault();
-    const accounts = await Web3.eth.getAccounts();
-    Router.pushRoute(`/list/${accounts[0]}`);
-  }
 
   onClickedUserregister = async event => {
     event.preventDefault();
     const accounts = await Web3.eth.getAccounts();
     Router.pushRoute(`/register/${accounts[0]}`);
+  }
+
+  onClickedUserDocument = async event => {
+    event.preventDefault();
+    const accounts = await Web3.eth.getAccounts();
+    Router.pushRoute(`/document/${accounts[0]}`);
+  }
+
+  onClickedUserPerfil = async event => {
+    event.preventDefault();
+    const accounts = await Web3.eth.getAccounts();
+    Router.pushRoute(`/record/${accounts[0]}`);
   }
  
   render() {
@@ -37,16 +44,19 @@ export default class MenuBar extends Component {
           <Menu.Menu position='right'>
 
             {/* <Link route='/list' className='item'>Lista de Registros</Link> */}
-            <Dropdown item text='Lista'>
+            {/* <Dropdown item text='Lista'>
               <Dropdown.Menu>
                 <Dropdown.Item>
                 <Link route='/list' style={{ color: 'black' }} onClick={this.onClickedUserList}>Lista</Link>
                 </Dropdown.Item>
               </Dropdown.Menu>
-            </Dropdown>
+            </Dropdown> */}
             
             <Dropdown item text='Usuario'>
               <Dropdown.Menu>
+              <Dropdown.Item>
+                <Link route='/details' style={{ color: 'black' }} onClick={this.onClickedUserPerfil}>Perfil</Link>
+                </Dropdown.Item>
                 <Dropdown.Item>
                   <Link route='/edit' style={{color:'black'}} onClick={this.onClickedUserEdit}>Editar Perfil</Link>
                 </Dropdown.Item>
@@ -57,6 +67,9 @@ export default class MenuBar extends Component {
                 <Dropdown.Item>
                   <Link route='/register' style={{color:'black'}} onClick={this.onClickedUserregister}>Usuario</Link>            
                 </Dropdown.Item>
+                <Dropdown.Item>
+                    <Link route='/document' style={{ color: 'black' }} onClick={this.onClickedUserDocument}>Documento</Link>
+                    </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
 
