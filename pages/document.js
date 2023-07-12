@@ -64,3 +64,6 @@ export default class extends Component {
         );
     }
 }
+
+
+// https://dev.to/jerocosio/como-hacer-un-deploy-de-tu-aplicacion-next-js-en-netlify-33b6
