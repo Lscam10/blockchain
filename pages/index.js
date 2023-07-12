@@ -34,7 +34,8 @@ class index extends Component {
   '0x5718F4F37C30466FEB99a34e41EA562cbF5d3AA1'       
   )
 
-       const accounts = await web3.eth.getAccounts();
+      // const accounts = await web3.eth.getAccounts();
+      const accounts = await ethereum.request({ method: 'eth_accounts' });
 
       this.setState({ web3, contract, account: accounts[0] }, this.start);
     } catch (error) {
