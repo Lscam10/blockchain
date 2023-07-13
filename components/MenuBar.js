@@ -67,9 +67,9 @@ export default class MenuBar extends Component {
                 <Dropdown.Item>
                   <Link route='/register' style={{color:'black'}} onClick={this.onClickedUserregister}>Usuario</Link>            
                 </Dropdown.Item>
-                <Dropdown.Item>
+                {/* <Dropdown.Item>
                     <Link route='/document' style={{ color: 'black' }} onClick={this.onClickedUserDocument}>Documento</Link>
-                    </Dropdown.Item>
+                    </Dropdown.Item> */}
               </Dropdown.Menu>
             </Dropdown>
 
